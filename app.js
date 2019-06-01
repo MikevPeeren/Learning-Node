@@ -1,5 +1,5 @@
-// Core Node Modules
-const http = require('http');
+// Core Modules
+const path = require('path');
 
 // Third Party Node Modules
 const express = require('express');
@@ -7,22 +7,18 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
+const adminRoutes = require('./routes/admin');
+const shopRoutes = require('./routes/shop');
+
 app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-app.use('/add-product', (request, response, next) => {
-    response.send('<form action="/product" method="POST"><input type="text" name="title"><button type="submit">Submit</button></form>')
-});
+app.use('/admin', adminRoutes);
+app.use(shopRoutes);
 
-app.get('/product', (request, response, next) => {
-    console.log(request.body);
-    response.redirect('/');
-});
-
-app.use('/', (request, response, next) => {
-    console.log('In another Middleware!');
-    response.send('<h1>Hello from Express</h1>');
+app.use((request, response, next) => {
+    response.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
 });
 
 app.listen(1337);
