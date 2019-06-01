@@ -1,0 +1,23 @@
+{
+  "name": "learning-node",
+  "version": "1.0.0",
+  "description": "This is a repository that will display my learning curve in Node :)",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikevPeeren/Learning-Node.git"
+  },
+  "author": "Mike van Peeren",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MikevPeeren/Learning-Node/issues"
+  },
+  "homepage": "https://github.com/MikevPeeren/Learning-Node#readme",
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  }
+}
