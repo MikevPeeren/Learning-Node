@@ -5,7 +5,7 @@ const path = require('path');
 const express = require('express');
 
 // Own Modules
-const rootDir = require('../util/path')
+const rootDir = require('../util/path');
 
 const router = express.Router();
 
