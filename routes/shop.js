@@ -6,11 +6,16 @@ const express = require('express');
 
 // Own Modules
 const rootDir = require('../util/path');
+const adminData = require('./admin');
 
 const router = express.Router();
 
 router.get('/', (request, response, next) => {
-    response.sendFile(path.join(rootDir, 'views', 'shop.html'));
+    const products = adminData.products;
+    response.render('shop', {
+        products: products,
+        documentTitle: 'Shopaholic'
+    });
 });
 
 module.exports = router;
