@@ -14,7 +14,8 @@ router.get('/', (request, response, next) => {
     const products = adminData.products;
     response.render('shop', {
         products: products,
-        documentTitle: 'Shopaholic'
+        pageTitle: 'Shopaholic',
+        path: '/'
     });
 });
 

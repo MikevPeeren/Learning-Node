@@ -12,7 +12,10 @@ const router = express.Router();
 const products = [];
 
 router.get('/add-product', (request, response, next) => {
-    response.sendFile(path.join(rootDir, 'views', 'add-product.html'));
+    response.render('add-product', {
+        pageTitle: 'Add Product',
+        path: '/admin/add-product',
+    });
 });
 
 router.post('/add-product', (request, response, next) => {
