@@ -4,10 +4,16 @@ const path = require('path');
 // Third Party Node Modules
 const express = require('express');
 const bodyParser = require('body-parser');
+const expressHandleBars = require('express-handlebars');
 
 const app = express();
 
-app.set('view engine', 'pug');
+app.engine('handlebars', expressHandleBars({
+    layoutsDir: 'views/layouts/',
+    defaultLayout: 'main-layout'
+}));
+app.set('view engine', 'handlebars');
+// app.set('view engine', 'pug');
 app.set('views', 'views');
 
 const adminData = require('./routes/admin');
@@ -23,7 +29,9 @@ app.use('/admin', adminData.exports);
 app.use(shopRoutes);
 
 app.use((request, response, next) => {
-    response.status(404).render('404', {pageTitle: 'Page Not Found!'});
+    response.status(404).render('404', {
+        pageTitle: 'Page Not Found!'
+    });
 });
 
 app.listen(1337);
