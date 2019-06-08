@@ -8,12 +8,19 @@ const expressHandleBars = require('express-handlebars');
 
 const app = express();
 
-app.engine('handlebars', expressHandleBars({
-    layoutsDir: 'views/layouts/',
-    defaultLayout: 'main-layout'
-}));
-app.set('view engine', 'handlebars');
+// Handlebars Templating
+// ---
+// app.engine('handlebars', expressHandleBars({
+//     layoutsDir: 'views/layouts/',
+//     defaultLayout: 'main-layout'
+// }));
+// app.set('view engine', 'handlebars');
+
+// PUG Templating
+// ---
 // app.set('view engine', 'pug');
+
+app.set('view engine', 'ejs');
 app.set('views', 'views');
 
 const adminData = require('./routes/admin');
