@@ -16,9 +16,7 @@ router.get('/', (request, response, next) => {
         products: products,
         pageTitle: 'Shopaholic',
         path: '/',
-        hasProducts: products.length > 0,
-        activeShop: true,
-        productCSS: true,
+        hasProducts: products.length > 0
     });
 });
 

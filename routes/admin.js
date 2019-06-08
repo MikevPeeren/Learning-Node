@@ -14,10 +14,7 @@ const products = [];
 router.get('/add-product', (request, response, next) => {
     response.render('add-product', {
         pageTitle: 'Add Product',
-        path: '/admin/add-product',
-        productCSS: true,
-        formsCSS: true,
-        activeAddProduct: true
+        path: '/admin/add-product'
     });
 });
 
