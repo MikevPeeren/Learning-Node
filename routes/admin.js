@@ -1,23 +1,11 @@
 // Third Party Node Modules
 const express = require('express');
-
 const router = express.Router();
 
-const products = [];
+const productsController = require('../controllers/products');
 
-router.get('/add-product', (request, response, next) => {
-    response.render('add-product', {
-        pageTitle: 'Add Product',
-        path: '/admin/add-product'
-    });
-});
+router.get('/add-product', productsController.getAddProduct);
 
-router.post('/add-product', (request, response, next) => {
-    products.push({
-        title: request.body.title
-    });
-    response.redirect('/');
-});
+router.post('/add-product', productsController.postAddProduct);
 
-exports.exports = router;
-exports.products = products;
+module.exports = router;
