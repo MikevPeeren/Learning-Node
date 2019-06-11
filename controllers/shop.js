@@ -22,6 +22,17 @@ exports.getProducts = (request, response, next) => {
     });
 }
 
+exports.getProduct = (request, response, next) => {
+    const productID = request.params.productID;
+    Product.findByID(productID, product => {
+        response.render('shop/product-detail', {
+            product: product,
+            pageTitle: product.title,
+            path: '/products'
+        })
+    });
+}
+
 exports.getCart = (request, response, next) => {
     response.render('shop/cart', {
         path: '/cart',
