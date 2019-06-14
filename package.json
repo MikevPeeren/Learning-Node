@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/MikevPeeren/Learning-Node#readme",
   "devDependencies": {
+    "eslint": "^5.16.0",
     "nodemon": "^1.19.1"
   },
   "dependencies": {

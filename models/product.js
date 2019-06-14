@@ -14,6 +14,7 @@ const getProductsFromFile = callback => {
         callback(JSON.parse(fileContent));
     });
 }
+
 module.exports = class Product {
     constructor(title, imageUrl, price, description) {
         this.title = title;
@@ -23,7 +24,7 @@ module.exports = class Product {
     }
 
     save() {
-        this.id = uniqid();
+        this.ID = uniqid();
         getProductsFromFile(products => {
             products.push(this);
             fs.writeFile(p, JSON.stringify(products), (error) => {
@@ -38,7 +39,7 @@ module.exports = class Product {
 
     static findByID(ID, callback) {
         getProductsFromFile(products => {
-            const product = products.find(p => p.id === ID);
+            const product = products.find(p => p.ID === ID);
             callback(product);
         });
     }
