@@ -11,9 +11,9 @@ exports.getAddProduct = (request, response, next) => {
 exports.postAddProduct = (request, response, next) => {
     const body = request.body;
     const product = new Product(null, body.title, body.imageUrl, body.price, body.description);
-    product.save();
-
-    response.redirect('/');
+    product.save().then(() => {
+        response.redirect('/');
+    }).catch(error => console.log(error));
 }
 
 exports.getEditProduct = (request, response, next) => {
@@ -45,19 +45,23 @@ exports.postEditProduct = (request, response, next) => {
 }
 
 exports.getProducts = (request, response, next) => {
-    Product.fetchAll(products => {
-        response.render('admin/products', {
-            products: products,
-            pageTitle: 'Admin Products',
-            path: '/admin/products',
-            hasProducts: products.length > 0
+    Product.fetchAll()
+        .then(([rows, fieldData]) => {
+            response.render('admin/products', {
+                products: rows,
+                pageTitle: 'Admin Products',
+                path: '/admin/products',
+                hasProducts: rows.length > 0
+            });
+        }).catch(error => {
+            console.log(error);
         });
-    });
+
 }
 
 exports.postDeleteProduct = (request, response, next) => {
     const productID = request.body.productID;
-    
+
     Product.deleteByID(productID);
     response.redirect('/admin/products');
 }
