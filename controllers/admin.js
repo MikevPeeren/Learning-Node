@@ -10,7 +10,7 @@ exports.getAddProduct = (request, response, next) => {
 
 exports.postAddProduct = (request, response, next) => {
     const body = request.body;
-    const product = new Product(body.title, body.imageUrl, body.price, body.description);
+    const product = new Product(null, body.title, body.imageUrl, body.price, body.description);
     product.save();
 
     response.redirect('/');
@@ -24,7 +24,7 @@ exports.getEditProduct = (request, response, next) => {
 
     const productID = request.params.productID;
     Product.findByID(productID, product => {
-        if(!product){
+        if (!product) {
             return response.redirect('/');
         }
         response.render('admin/edit-product', {
@@ -37,7 +37,11 @@ exports.getEditProduct = (request, response, next) => {
 }
 
 exports.postEditProduct = (request, response, next) => {
-   // ToDo: Edit
+    const requestBody = request.body;
+    const updatedProduct = new Product(requestBody.productID, requestBody.updatedTitle, requestBody.updatedImageUrl, requestBody.updatedPrice, requestBody.updatedDescription);
+
+    updatedProduct.save();
+    response.redirect('/admin/products');
 }
 
 exports.getProducts = (request, response, next) => {
@@ -49,4 +53,11 @@ exports.getProducts = (request, response, next) => {
             hasProducts: products.length > 0
         });
     });
+}
+
+exports.postDeleteProduct = (request, response, next) => {
+    const productID = request.body.productID;
+    
+    Product.deleteByID(productID);
+    response.redirect('/admin/products');
 }

@@ -12,5 +12,9 @@ function menuToggleClickHandler() {
   sideDrawer.classList.add('open');
 }
 
-backdrop.addEventListener('click', backdropClickHandler);
-menuToggle.addEventListener('click', menuToggleClickHandler);
+if (backdrop !== null) {  
+  backdrop.addEventListener('click', backdropClickHandler);
+}
+if (menuToggle !== null) {
+  menuToggle.addEventListener('click', menuToggleClickHandler);
+}
