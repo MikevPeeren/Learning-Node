@@ -2,11 +2,11 @@ const fs = require('fs');
 const path = require('path');
 
 const rootDir = require('../util/path');
+
 const p = path.join(rootDir, 'data', 'cart.json');
 
 module.exports = class Cart {
   static addProduct(ID, productPrice) {
-
     // Fetch the previous cart
     fs.readFile(p, (err, fileContent) => {
       let cart = {
@@ -17,9 +17,7 @@ module.exports = class Cart {
         cart = JSON.parse(fileContent);
       }
       // Analyze the cart => Find existing product
-      const existingProductIndex = cart.products.findIndex(
-        product => product.ID === ID
-      );
+      const existingProductIndex = cart.products.findIndex(product => product.ID === ID);
       const existingProduct = cart.products[existingProductIndex];
       let updatedProduct;
       // Add new product & increase quantity
@@ -27,20 +25,18 @@ module.exports = class Cart {
         updatedProduct = {
           ...existingProduct
         };
-        updatedProduct.quantity = updatedProduct.quantity + 1;
+        updatedProduct.quantity += 1;
         cart.products = [...cart.products];
         cart.products[existingProductIndex] = updatedProduct;
       } else {
         updatedProduct = {
-          ID: ID,
+          ID,
           quantity: 1
         };
         cart.products = [...cart.products, updatedProduct];
       }
-      cart.totalPrice = cart.totalPrice + +productPrice;
-      fs.writeFile(p, JSON.stringify(cart), err => {
-        console.log(err);
-      });
+      cart.totalPrice += +productPrice;
+      fs.writeFile(p, JSON.stringify(cart), () => {});
     });
   }
 
@@ -52,18 +48,16 @@ module.exports = class Cart {
       const updatedCart = {
         ...JSON.parse(fileContent)
       };
-      const product = updatedCart.products.find(product => product.ID === ID)
+      const product = updatedCart.products.find(prod => prod.ID === ID);
       if (!product) {
         return;
       }
       const productQuantity = product.quantity;
 
-      updatedCart.products = updatedCart.products.filter(product => product.ID !== ID);
-      updatedCart.totalPrice = updatedCart.totalPrice - productPrice * productQuantity;
+      updatedCart.products = updatedCart.products.filter(prod => prod.ID !== ID);
+      updatedCart.totalPrice -= productPrice * productQuantity;
 
-      fs.writeFile(p, JSON.stringify(updatedCart), err => {
-        console.log(err);
-      });
+      fs.writeFile(p, JSON.stringify(updatedCart), () => {});
     });
   }
 

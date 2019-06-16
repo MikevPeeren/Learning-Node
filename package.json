@@ -19,7 +19,13 @@
   },
   "homepage": "https://github.com/MikevPeeren/Learning-Node#readme",
   "devDependencies": {
-    "eslint": "^5.16.0",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^5.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.11.0",
     "nodemon": "^1.19.1"
   },
   "dependencies": {
@@ -28,7 +34,9 @@
     "express": "^4.17.1",
     "express-handlebars": "^3.1.0",
     "mysql2": "^1.6.5",
+    "prettier": "^1.18.2",
     "pug": "^2.0.3",
+    "sequelize": "^5.8.9",
     "uniqid": "^5.0.3"
   }
 }
