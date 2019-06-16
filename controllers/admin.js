@@ -12,12 +12,13 @@ exports.getAddProduct = (request, response) => {
 
 exports.postAddProduct = (request, response) => {
   const { title, imageUrl, price, description } = request.body;
-  Product.create({
-    title,
-    imageUrl,
-    price,
-    description
-  })
+  request.user
+    .createProduct({
+      title,
+      imageUrl,
+      price,
+      description
+    })
     .then(() => {
       response.redirect('/');
     })
