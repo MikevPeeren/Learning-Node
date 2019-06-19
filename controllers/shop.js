@@ -1,5 +1,4 @@
 const Product = require('../models/product');
-const Cart = require('../models/cart');
 
 exports.getIndex = (request, response) => {
   Product.findAll()
@@ -40,58 +39,111 @@ exports.getProduct = (request, response) => {
 };
 
 exports.getCart = (request, response) => {
-  Cart.getCart(cart => {
-    Product.findAll()
-      .then(products => {
-        const cartProducts = [];
-        for (product of products) {
-          const cartProductData = cart.products.find(
-            productData => parseInt(productData.ID) === product.id
-          );
-          if (cartProductData) {
-            cartProducts.push({
-              productData: product,
-              quantity: cartProductData.quantity
-            });
-          }
-        }
-
-        response.render('shop/cart', {
-          path: '/cart',
-          pageTitle: 'Your Cart',
-          products: cartProducts
-        });
-      })
-      .catch({});
-  });
+  request.user
+    .getCart()
+    .then(cart => {
+      return cart
+        .getProducts()
+        .then(products => {
+          response.render('shop/cart', {
+            path: '/cart',
+            pageTitle: 'Your Cart',
+            products
+          });
+        })
+        .catch(() => {});
+    })
+    .catch(() => {});
 };
 
 exports.postCart = (request, response) => {
-  Product.findByPk(request.body.productID)
+  const [productID] = request.body.productID;
+  let fetchedCart;
+  let newQuantity = 1;
+  request.user
+    .getCart()
+    .then(cart => {
+      fetchedCart = cart;
+      return cart.getProducts({ where: { id: productID } });
+    })
+    .then(products => {
+      let product;
+      if (products.length > 0) {
+        [product] = products;
+      }
+      if (product) {
+        const oldQuantity = product.cartItem.quantity;
+        newQuantity = oldQuantity + 1;
+        return product;
+      }
+      return Product.findByPk(productID);
+    })
     .then(product => {
-      Cart.addProduct(request.body.productID, product.price);
+      return fetchedCart.addProduct(product, { through: { quantity: newQuantity } });
+    })
+    .then(() => {
       response.redirect('/cart');
     })
-    .catch({});
+    .catch(() => {});
 };
 
 exports.postDeleteCartItem = (request, response) => {
-  Product.findByPk(request.body.productID, product => {
-    Cart.deleteProduct(request.body.productID, product.price);
-    response.redirect('/cart');
-  });
+  const [productID] = request.body.productID;
+  request.user
+    .getCart()
+    .then(cart => {
+      return cart.getProducts({ where: { id: productID } });
+    })
+    .then(products => {
+      const [product] = products;
+      return product.cartItem.destroy();
+    })
+    .then(() => {
+      response.redirect('/cart');
+    })
+    .catch(() => {});
 };
 
 exports.getOrders = (request, response) => {
-  response.render('shop/orders', {
-    path: '/orders',
-    pageTitle: 'Your Orders'
-  });
+  request.user
+    .getOrders({ include: ['products'] })
+    .then(orders => {
+      response.render('shop/orders', {
+        path: '/orders',
+        pageTitle: 'Your Orders',
+        orders
+      });
+    })
+    .catch();
 };
 
-exports.getCheckOut = (request, response) => {
-  response.render('shop/checkout', {
-    path: '/checkout',
-    pageTitle: 'Checkout'
-  });
+exports.postOrder = (request, response) => {
+  let fetchedCart;
+  request.user
+    .getCart()
+    .then(cart => {
+      fetchedCart = cart;
+      return cart.getProducts();
+    })
+    .then(products => {
+      return request.user
+        .createOrder()
+        .then(order => {
+          return order.addProducts(
+            products.map(product => {
+              const prod = product;
+              prod.orderItem = { quantity: product.cartItem.quantity };
+              return product;
+            })
+          );
+        })
+        .catch(() => {});
+    })
+    .then(() => {
+      return fetchedCart.setProducts(null);
+    })
+    .then(() => {
+      response.redirect('/orders');
+    })
+    .catch(() => {});
 };

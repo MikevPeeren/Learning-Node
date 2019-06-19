@@ -25,15 +25,16 @@ exports.postAddProduct = (request, response) => {
     .catch({});
 };
 
-// eslint-disable-next-line consistent-return
 exports.getEditProduct = (request, response) => {
   const editMode = request.query.edit;
   if (!editMode) {
     return response.redirect('/');
   }
-
-  Product.findByPk(request.params.productID)
-    .then(product => {
+  const productID = request.params.productID;
+  request.user
+    .getProducts({ where: { id: productID } })
+    .then(products => {
+      const product = products[0];
       if (!product) {
         return response.redirect('/');
       }
@@ -65,7 +66,8 @@ exports.postEditProduct = (request, response) => {
 };
 
 exports.getProducts = (request, response) => {
-  Product.findAll()
+  request.user
+    .getProducts()
     .then(products => {
       response.render('admin/products', {
         products,
