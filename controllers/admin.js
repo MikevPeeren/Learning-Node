@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
-
+const mongodb = require('mongodb');
 const Product = require('../models/product');
+
+const ObjectID = mongodb.ObjectId;
 
 exports.getAddProduct = (request, response) => {
   response.render('admin/edit-product', {
@@ -22,45 +24,47 @@ exports.postAddProduct = (request, response) => {
     .catch({});
 };
 
-// exports.getEditProduct = (request, response) => {
-//   const editMode = request.query.edit;
-//   if (!editMode) {
-//     return response.redirect('/');
-//   }
-//   const productID = request.params.productID;
-//   request.user
-//     .getProducts({ where: { id: productID } })
-//     .then(products => {
-//       const product = products[0];
-//       if (!product) {
-//         return response.redirect('/');
-//       }
-//       return response.render('admin/edit-product', {
-//         pageTitle: 'Edit Product',
-//         path: '/admin/edit-product',
-//         editing: editMode,
-//         product
-//       });
-//     })
-//     .catch({});
-// };
+// eslint-disable-next-line consistent-return
+exports.getEditProduct = (request, response) => {
+  const editMode = request.query.edit;
+  if (!editMode) {
+    return response.redirect('/');
+  }
+  // eslint-disable-next-line prefer-destructuring
+  const productID = request.params.productID;
+  Product.getProductByID(productID)
+    .then(product => {
+      if (!product) {
+        return response.redirect('/');
+      }
+      return response.render('admin/edit-product', {
+        pageTitle: 'Edit Product',
+        path: '/admin/edit-product',
+        editing: editMode,
+        product
+      });
+    })
+    .catch(() => {});
+};
 
-// exports.postEditProduct = (request, response) => {
-//   const requestBody = request.body;
-//   Product.findByPk(requestBody.productID)
-//     .then(product => {
-//       product.title = requestBody.title;
-//       product.imageUrl = requestBody.imageUrl;
-//       product.price = requestBody.price;
-//       product.description = requestBody.description;
+exports.postEditProduct = (request, response) => {
+  const requestBody = request.body;
 
-//       return product.save();
-//     })
-//     .then(() => {
-//       response.redirect('/admin/products');
-//     })
-//     .catch({});
-// };
+  const product = new Product(
+    requestBody.title,
+    requestBody.imageUrl,
+    requestBody.price,
+    requestBody.description,
+    new ObjectID(requestBody.productID)
+  );
+
+  product
+    .save()
+    .then(() => {
+      response.redirect('/admin/products');
+    })
+    .catch(() => {});
+};
 
 exports.getProducts = (request, response) => {
   Product.fetchAll()
@@ -75,11 +79,11 @@ exports.getProducts = (request, response) => {
     .catch({});
 };
 
-// exports.postDeleteProduct = (request, response) => {
-//   Product.findByPk(request.body.productID)
-//     .then(product => {
-//       return product.destroy();
-//     })
-//     .then(response.redirect('/admin/products'))
-//     .catch({});
-// };
+exports.postDeleteProduct = (request, response) => {
+  Product.getProductByID(request.body.productID)
+    .then(product => {
+      return product.destroy();
+    })
+    .then(response.redirect('/admin/products'))
+    .catch({});
+};

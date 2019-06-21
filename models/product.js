@@ -2,24 +2,32 @@ const mongodb = require('mongodb');
 const getDatabase = require('../util/database').getDatabase;
 
 class Product {
-  constructor(title, imageUrl, price, description) {
+  constructor(title, imageUrl, price, description, _id) {
     this.title = title;
     this.imageUrl = imageUrl;
     this.price = price;
     this.description = description;
+    // eslint-disable-next-line no-underscore-dangle
+    this._id = _id;
   }
 
   save() {
     const database = getDatabase();
-    return database
-      .collection('products')
-      .insertOne(this)
-      .then(result => {
-        console.log(result);
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    let databaseOperation;
+    // eslint-disable-next-line no-underscore-dangle
+    if (this._id) {
+      databaseOperation = database.collection('products').updateOne(
+        {
+          // eslint-disable-next-line no-underscore-dangle
+          _id: mongodb.ObjectId(this._id)
+        },
+        { $set: this }
+      );
+    } else {
+      databaseOperation = database.collection('products').insertOne(this);
+    }
+
+    return databaseOperation.then(() => {}).catch(() => {});
   }
 
   static fetchAll() {
@@ -29,11 +37,9 @@ class Product {
       .find()
       .toArray()
       .then(products => {
-        console.log(products);
-
         return products;
       })
-      .catch();
+      .catch(() => {});
   }
 
   static getProductByID(productID) {
@@ -45,7 +51,7 @@ class Product {
       .then(product => {
         return product;
       })
-      .catch();
+      .catch(() => {});
   }
 }
 
