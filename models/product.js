@@ -1,4 +1,4 @@
-const getDatabase = require('../util/database');
+const getDatabase = require('../util/database').getDatabase;
 
 class Product {
   constructor(title, imageUrl, price, description) {
@@ -10,7 +10,29 @@ class Product {
 
   save() {
     const database = getDatabase();
-    database.collection('products');
+    return database
+      .collection('products')
+      .insertOne(this)
+      .then(result => {
+        console.log(result);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  static fetchAll() {
+    const database = getDatabase();
+    return database
+      .collection('products')
+      .find()
+      .toArray()
+      .then(products => {
+        console.log(products);
+
+        return products;
+      })
+      .catch();
   }
 }
 

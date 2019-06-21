@@ -2,15 +2,12 @@
 const MongoClient = require('mongodb').MongoClient;
 
 const uri =
-  'mongodb+srv://MikevPeeren:lvvOzjNXyjsnfRW2@learningnode-6g8uf.mongodb.net/test?retryWrites=true&w=majority';
+  'mongodb+srv://MikevPeeren:lvvOzjNXyjsnfRW2@learningnode-6g8uf.mongodb.net/shop?retryWrites=true&w=majority';
 
 let database;
 
-const mongoClient = new MongoClient(uri, { useNewUrlParser: true });
-
 const mongoConnect = callback => {
-  mongoClient
-    .connect()
+  MongoClient.connect(uri, { useNewUrlParser: true })
     .then(client => {
       // eslint-disable-next-line no-console
       console.log('Connected to MongoDB!');
@@ -29,4 +26,4 @@ const getDatabase = () => {
 };
 
 exports.mongoConnect = mongoConnect;
-exports.database = database;
+exports.getDatabase = getDatabase;
