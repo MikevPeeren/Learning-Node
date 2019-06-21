@@ -27,8 +27,10 @@ exports.getProducts = (request, response) => {
 };
 
 exports.getProduct = (request, response) => {
-  Product.findByPk(request.params.productID)
+  Product.getProductByID(request.params.productID)
     .then(product => {
+      console.log(product);
+
       response.render('shop/product-detail', {
         product,
         pageTitle: 'test',
