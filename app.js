@@ -9,6 +9,8 @@ const errorController = require('./controllers/error');
 
 const { mongoConnect } = require('./util/database');
 
+const User = require('./models/user');
+
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -26,7 +28,12 @@ app.use(
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((request, response, next) => {
-  next();
+  User.findUserById('5d0e35421c9d4400003823f3')
+    .then(user => {
+      request.user = user;
+      next();
+    })
+    .catch(() => {});
 });
 
 app.use('/admin', adminRoutes);

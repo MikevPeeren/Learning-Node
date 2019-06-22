@@ -2,13 +2,14 @@ const mongodb = require('mongodb');
 const getDatabase = require('../util/database').getDatabase;
 
 class Product {
-  constructor(title, imageUrl, price, description, _id) {
+  constructor(title, imageUrl, price, description, _id, userID) {
     this.title = title;
     this.imageUrl = imageUrl;
     this.price = price;
     this.description = description;
     // eslint-disable-next-line no-underscore-dangle
     this._id = _id ? new mongodb.ObjectID(_id) : null;
+    this.userID = userID;
   }
 
   save() {
@@ -19,7 +20,7 @@ class Product {
       databaseOperation = database.collection('products').updateOne(
         {
           // eslint-disable-next-line no-underscore-dangle
-          _id: mongodb.ObjectId(this._id)
+          _id: mongodb.ObjectID(this._id)
         },
         { $set: this }
       );
@@ -58,7 +59,7 @@ class Product {
     const database = getDatabase();
     return database
       .collection('products')
-      .deleteOne({ _id: new mongodb.ObjectId(productID) })
+      .deleteOne({ _id: new mongodb.ObjectID(productID) })
       .then()
       .catch();
   }
