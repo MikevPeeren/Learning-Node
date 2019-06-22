@@ -1,8 +1,5 @@
 /* eslint-disable no-param-reassign */
-const mongodb = require('mongodb');
 const Product = require('../models/product');
-
-const ObjectID = mongodb.ObjectId;
 
 exports.getAddProduct = (request, response) => {
   response.render('admin/edit-product', {
@@ -55,7 +52,7 @@ exports.postEditProduct = (request, response) => {
     requestBody.imageUrl,
     requestBody.price,
     requestBody.description,
-    new ObjectID(requestBody.productID)
+    requestBody.productID
   );
 
   product
@@ -80,10 +77,9 @@ exports.getProducts = (request, response) => {
 };
 
 exports.postDeleteProduct = (request, response) => {
-  Product.getProductByID(request.body.productID)
-    .then(product => {
-      return product.destroy();
+  Product.deleteById(request.body.productID)
+    .then(() => {
+      response.redirect('/admin/products');
     })
-    .then(response.redirect('/admin/products'))
     .catch({});
 };

@@ -8,7 +8,7 @@ class Product {
     this.price = price;
     this.description = description;
     // eslint-disable-next-line no-underscore-dangle
-    this._id = _id;
+    this._id = _id ? new mongodb.ObjectID(_id) : null;
   }
 
   save() {
@@ -52,6 +52,15 @@ class Product {
         return product;
       })
       .catch(() => {});
+  }
+
+  static deleteById(productID) {
+    const database = getDatabase();
+    return database
+      .collection('products')
+      .deleteOne({ _id: new mongodb.ObjectId(productID) })
+      .then()
+      .catch();
   }
 }
 
