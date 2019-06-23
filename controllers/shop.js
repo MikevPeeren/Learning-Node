@@ -29,8 +29,6 @@ exports.getProducts = (request, response) => {
 exports.getProduct = (request, response) => {
   Product.getProductByID(request.params.productID)
     .then(product => {
-      console.log(product);
-
       response.render('shop/product-detail', {
         product,
         pageTitle: 'test',
@@ -43,63 +41,33 @@ exports.getProduct = (request, response) => {
 exports.getCart = (request, response) => {
   request.user
     .getCart()
-    .then(cart => {
-      return cart
-        .getProducts()
-        .then(products => {
-          response.render('shop/cart', {
-            path: '/cart',
-            pageTitle: 'Your Cart',
-            products
-          });
-        })
-        .catch(() => {});
+    .then(products => {
+      response.render('shop/cart', {
+        path: '/cart',
+        pageTitle: 'Your Cart',
+        products
+      });
     })
     .catch(() => {});
 };
 
 exports.postCart = (request, response) => {
-  const [productID] = request.body.productID;
-  let fetchedCart;
-  let newQuantity = 1;
-  request.user
-    .getCart()
-    .then(cart => {
-      fetchedCart = cart;
-      return cart.getProducts({ where: { id: productID } });
-    })
-    .then(products => {
-      let product;
-      if (products.length > 0) {
-        [product] = products;
-      }
-      if (product) {
-        const oldQuantity = product.cartItem.quantity;
-        newQuantity = oldQuantity + 1;
-        return product;
-      }
-      return Product.findByPk(productID);
-    })
+  // eslint-disable-next-line prefer-destructuring
+  const productID = request.body.productID;
+  Product.getProductByID(productID)
     .then(product => {
-      return fetchedCart.addProduct(product, { through: { quantity: newQuantity } });
+      return request.user.addToCart(product);
     })
     .then(() => {
       response.redirect('/cart');
-    })
-    .catch(() => {});
+    });
 };
 
 exports.postDeleteCartItem = (request, response) => {
-  const [productID] = request.body.productID;
+  // eslint-disable-next-line prefer-destructuring
+  const productID = request.body.productID;
   request.user
-    .getCart()
-    .then(cart => {
-      return cart.getProducts({ where: { id: productID } });
-    })
-    .then(products => {
-      const [product] = products;
-      return product.cartItem.destroy();
-    })
+    .deleteItemFromCart(productID)
     .then(() => {
       response.redirect('/cart');
     })

@@ -30,7 +30,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use((request, response, next) => {
   User.findUserById('5d0e35421c9d4400003823f3')
     .then(user => {
-      request.user = user;
+      request.user = new User(user.username, user.password, user.email, user.cart, user._id);
       next();
     })
     .catch(() => {});
