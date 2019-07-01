@@ -96,6 +96,35 @@ class User {
     );
   }
 
+  addOrder() {
+    const database = getDatabase();
+    return this.getCart()
+      .then(products => {
+        const order = {
+          items: products,
+          user: {
+            _id: new ObjectID(this._id),
+            name: this.username
+          }
+        };
+        return database.collection('orders').insertOne(order);
+      })
+      .then(result => {
+        this.cart = { items: [] };
+        return database
+          .collection('users')
+          .updateOne({ _id: new ObjectID(this._id) }, { $set: { cart: { items: [] } } });
+      });
+  }
+
+  getOrders() {
+    const database = getDatabase();
+    return database
+      .collection('orders')
+      .find({ 'user._id': new ObjectID(this._id) })
+      .toArray();
+  }
+
   static findUserById(userID) {
     const database = getDatabase();
     return database
@@ -108,4 +137,5 @@ class User {
       .catch(() => {});
   }
 }
+
 module.exports = User;

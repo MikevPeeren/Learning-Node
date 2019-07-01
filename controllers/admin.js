@@ -11,7 +11,6 @@ exports.getAddProduct = (request, response) => {
 
 exports.postAddProduct = (request, response) => {
   const { title, imageUrl, price, description } = request.body;
-  console.log(request.user);
   const product = new Product(title, imageUrl, price, description, null, request.user._id);
 
   product

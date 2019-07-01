@@ -76,7 +76,7 @@ exports.postDeleteCartItem = (request, response) => {
 
 exports.getOrders = (request, response) => {
   request.user
-    .getOrders({ include: ['products'] })
+    .getOrders()
     .then(orders => {
       response.render('shop/orders', {
         path: '/orders',
@@ -88,31 +88,9 @@ exports.getOrders = (request, response) => {
 };
 
 exports.postOrder = (request, response) => {
-  let fetchedCart;
   request.user
-    .getCart()
-    .then(cart => {
-      fetchedCart = cart;
-      return cart.getProducts();
-    })
-    .then(products => {
-      return request.user
-        .createOrder()
-        .then(order => {
-          return order.addProducts(
-            products.map(product => {
-              const prod = product;
-              prod.orderItem = { quantity: product.cartItem.quantity };
-              return product;
-            })
-          );
-        })
-        .catch(() => {});
-    })
-    .then(() => {
-      return fetchedCart.setProducts(null);
-    })
-    .then(() => {
+    .addOrder()
+    .then(result => {
       response.redirect('/orders');
     })
     .catch(() => {});
