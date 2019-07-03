@@ -1,3 +1,37 @@
+const mongoose = require('mongoose');
+
+// eslint-disable-next-line prefer-destructuring
+const Schema = mongoose.Schema;
+
+const userSchema = new Schema({
+  username: {
+    type: String,
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true
+  },
+  cart: {
+    items: [
+      {
+        productID: {
+          type: Schema.Types.ObjectId
+        },
+        quantity: {
+          type: Number,
+          required: true
+        }
+      }
+    ]
+  }
+});
+
+module.exports = mongoose.model('User', userSchema);
 // const mongodb = require('mongodb');
 // // eslint-disable-next-line prefer-destructuring
 // const getDatabase = require('../util/database').getDatabase;
