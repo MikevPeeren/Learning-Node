@@ -11,8 +11,12 @@ exports.getAddProduct = (request, response) => {
 
 exports.postAddProduct = (request, response) => {
   const { title, imageUrl, price, description } = request.body;
-  const product = new Product(title, imageUrl, price, description, null, request.user._id);
-
+  const product = new Product({
+    title,
+    imageUrl,
+    price,
+    description
+  });
   product
     .save()
     .then(() => {
@@ -29,7 +33,7 @@ exports.getEditProduct = (request, response) => {
   }
   // eslint-disable-next-line prefer-destructuring
   const productID = request.params.productID;
-  Product.getProductByID(productID)
+  Product.findById(productID)
     .then(product => {
       if (!product) {
         return response.redirect('/');
@@ -46,17 +50,14 @@ exports.getEditProduct = (request, response) => {
 
 exports.postEditProduct = (request, response) => {
   const requestBody = request.body;
-
-  const product = new Product(
-    requestBody.title,
-    requestBody.imageUrl,
-    requestBody.price,
-    requestBody.description,
-    requestBody.productID
-  );
-
-  product
-    .save()
+  Product.findById(requestBody.productID)
+    .then(product => {
+      product.title = requestBody.title;
+      product.imageUrl = requestBody.imageUrl;
+      product.price = requestBody.price;
+      product.description = requestBody.description;
+      return product.save();
+    })
     .then(() => {
       response.redirect('/admin/products');
     })
@@ -64,7 +65,7 @@ exports.postEditProduct = (request, response) => {
 };
 
 exports.getProducts = (request, response) => {
-  Product.fetchAll()
+  Product.find()
     .then(products => {
       response.render('admin/products', {
         products,
@@ -77,7 +78,7 @@ exports.getProducts = (request, response) => {
 };
 
 exports.postDeleteProduct = (request, response) => {
-  Product.deleteById(request.body.productID)
+  Product.findByIdAndRemove(request.body.productID)
     .then(() => {
       response.redirect('/admin/products');
     })
