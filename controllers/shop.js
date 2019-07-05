@@ -40,12 +40,13 @@ exports.getProduct = (request, response) => {
 
 exports.getCart = (request, response) => {
   request.user
-    .getCart()
-    .then(products => {
+    .populate('cart.items.productID')
+    .execPopulate()
+    .then(user => {
       response.render('shop/cart', {
         path: '/cart',
         pageTitle: 'Your Cart',
-        products
+        products: user.cart.items
       });
     })
     .catch(() => {});
@@ -54,7 +55,7 @@ exports.getCart = (request, response) => {
 exports.postCart = (request, response) => {
   // eslint-disable-next-line prefer-destructuring
   const productID = request.body.productID;
-  Product.getProductByID(productID)
+  Product.findById(productID)
     .then(product => {
       return request.user.addToCart(product);
     })
@@ -67,7 +68,7 @@ exports.postDeleteCartItem = (request, response) => {
   // eslint-disable-next-line prefer-destructuring
   const productID = request.body.productID;
   request.user
-    .deleteItemFromCart(productID)
+    .removeFromCart(productID)
     .then(() => {
       response.redirect('/cart');
     })

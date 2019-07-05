@@ -15,7 +15,8 @@ exports.postAddProduct = (request, response) => {
     title,
     imageUrl,
     price,
-    description
+    description,
+    userID: request.user
   });
   product
     .save()
