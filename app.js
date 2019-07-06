@@ -60,6 +60,8 @@ mongoose
       }
     });
 
-    app.listen(1337);
+    app.listen(1338);
   })
-  .catch(() => {});
+  .catch(error => {
+    console.log(error);
+  });

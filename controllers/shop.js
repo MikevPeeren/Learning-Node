@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const Order = require('../models/order');
 
 exports.getIndex = (request, response) => {
   Product.find()
@@ -76,8 +77,8 @@ exports.postDeleteCartItem = (request, response) => {
 };
 
 exports.getOrders = (request, response) => {
-  request.user
-    .getOrders()
+  // eslint-disable-next-line no-underscore-dangle
+  Order.find({ 'user.userID': request.user._id })
     .then(orders => {
       response.render('shop/orders', {
         path: '/orders',
@@ -85,13 +86,31 @@ exports.getOrders = (request, response) => {
         orders
       });
     })
-    .catch();
+    .catch(() => {});
 };
 
 exports.postOrder = (request, response) => {
   request.user
-    .addOrder()
-    .then(result => {
+    .populate('cart.items.productID')
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items.map(item => {
+        // eslint-disable-next-line no-underscore-dangle
+        return { quantity: item.quantity, product: { ...item.productID._doc } };
+      });
+      const order = new Order({
+        user: {
+          name: request.user.username,
+          userID: request.user
+        },
+        products
+      });
+      return order.save();
+    })
+    .then(() => {
+      return request.user.clearCart();
+    })
+    .then(() => {
       response.redirect('/orders');
     })
     .catch(() => {});
