@@ -17,6 +17,7 @@ app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
 app.use(
   bodyParser.urlencoded({
@@ -37,6 +38,7 @@ app.use((request, response, next) => {
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
 
@@ -60,8 +62,9 @@ mongoose
       }
     });
 
-    app.listen(1338);
+    app.listen(1339);
   })
   .catch(error => {
+    // eslint-disable-next-line no-console
     console.log(error);
   });
