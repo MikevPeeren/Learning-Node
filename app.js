@@ -5,6 +5,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const session = require('express-session');
 
 const errorController = require('./controllers/error');
 
@@ -26,6 +27,13 @@ app.use(
 );
 
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  session({
+    secret: 'my secret',
+    resave: false,
+    saveUninitialized: false
+  })
+);
 
 app.use((request, response, next) => {
   User.findById('5d1f47132cc7995a0b887b9f')

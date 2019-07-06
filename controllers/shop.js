@@ -8,7 +8,8 @@ exports.getIndex = (request, response) => {
         products,
         pageTitle: 'Shopaholic',
         path: '/',
-        hasProducts: products.length > 0
+        hasProducts: products.length > 0,
+        isAuthenticated: request.isLoggedIn
       });
     })
     .catch({});
@@ -33,7 +34,8 @@ exports.getProduct = (request, response) => {
       response.render('shop/product-detail', {
         product,
         pageTitle: 'test',
-        path: '/products'
+        path: '/products',
+        isAuthenticated: request.isLoggedIn
       });
     })
     .catch({});
@@ -47,7 +49,8 @@ exports.getCart = (request, response) => {
       response.render('shop/cart', {
         path: '/cart',
         pageTitle: 'Your Cart',
-        products: user.cart.items
+        products: user.cart.items,
+        isAuthenticated: request.isLoggedIn
       });
     })
     .catch(() => {});
@@ -83,7 +86,8 @@ exports.getOrders = (request, response) => {
       response.render('shop/orders', {
         path: '/orders',
         pageTitle: 'Your Orders',
-        orders
+        orders,
+        isAuthenticated: request.isLoggedIn
       });
     })
     .catch(() => {});
