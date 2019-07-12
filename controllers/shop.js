@@ -9,7 +9,7 @@ exports.getIndex = (request, response) => {
         pageTitle: 'Shopaholic',
         path: '/',
         hasProducts: products.length > 0,
-        isAuthenticated: request.isLoggedIn
+        isAuthenticated: request.session.isLoggedIn
       });
     })
     .catch({});
@@ -22,7 +22,8 @@ exports.getProducts = (request, response) => {
         products,
         pageTitle: 'Shopaholic',
         path: '/products',
-        hasProducts: products.length > 0
+        hasProducts: products.length > 0,
+        isAuthenticated: request.session.isLoggedIn
       });
     })
     .catch({});
@@ -35,7 +36,7 @@ exports.getProduct = (request, response) => {
         product,
         pageTitle: 'test',
         path: '/products',
-        isAuthenticated: request.isLoggedIn
+        isAuthenticated: request.session.isLoggedIn
       });
     })
     .catch({});
@@ -50,7 +51,7 @@ exports.getCart = (request, response) => {
         path: '/cart',
         pageTitle: 'Your Cart',
         products: user.cart.items,
-        isAuthenticated: request.isLoggedIn
+        isAuthenticated: request.session.isLoggedIn
       });
     })
     .catch(() => {});
@@ -61,7 +62,7 @@ exports.postCart = (request, response) => {
   const productID = request.body.productID;
   Product.findById(productID)
     .then(product => {
-      return request.user.addToCart(product);
+      return request.session.user.addToCart(product);
     })
     .then(() => {
       response.redirect('/cart');
@@ -87,7 +88,7 @@ exports.getOrders = (request, response) => {
         path: '/orders',
         pageTitle: 'Your Orders',
         orders,
-        isAuthenticated: request.isLoggedIn
+        isAuthenticated: request.session.isLoggedIn
       });
     })
     .catch(() => {});

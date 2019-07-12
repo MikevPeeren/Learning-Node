@@ -45,7 +45,11 @@ app.use(
 );
 
 app.use((request, response, next) => {
-  User.findById('5d1f47132cc7995a0b887b9f')
+  if (!request.session.user) {
+    return next();
+  }
+  // eslint-disable-next-line no-underscore-dangle
+  User.findById(request.session.user._id)
     .then(user => {
       request.user = user;
       next();
