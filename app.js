@@ -66,21 +66,7 @@ app.use(errorController.get404);
 mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true })
   .then(() => {
-    User.findOne().then(user => {
-      if (!user) {
-        const newUser = new User({
-          username: 'MikevPeeren',
-          password: 'rootroot',
-          email: 'MikevPeeren@hotmail.com',
-          cart: {
-            items: []
-          }
-        });
-        newUser.save();
-      }
-    });
-
-    app.listen(1339);
+    app.listen(1337);
   })
   .catch(error => {
     // eslint-disable-next-line no-console

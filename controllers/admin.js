@@ -22,7 +22,7 @@ exports.postAddProduct = (request, response) => {
   product
     .save()
     .then(() => {
-      response.redirect('/');
+      response.redirect('/admin/products');
     })
     .catch({});
 };
@@ -40,7 +40,7 @@ exports.getEditProduct = (request, response) => {
       if (!product) {
         return response.redirect('/');
       }
-      return response.render('admin/edit-product', {
+      response.render('admin/edit-product', {
         pageTitle: 'Edit Product',
         path: '/admin/edit-product',
         editing: editMode,

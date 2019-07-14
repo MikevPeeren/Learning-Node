@@ -30,16 +30,18 @@ exports.getProducts = (request, response) => {
 };
 
 exports.getProduct = (request, response) => {
-  Product.findById(request.params.productID)
+  // eslint-disable-next-line prefer-destructuring
+  const productID = request.params.productID;
+  Product.findById(productID)
     .then(product => {
       response.render('shop/product-detail', {
         product,
-        pageTitle: 'test',
+        pageTitle: 'Shopaholic',
         path: '/products',
         isAuthenticated: request.session.isLoggedIn
       });
     })
-    .catch({});
+    .catch(error => console.log(error));
 };
 
 exports.getCart = (request, response) => {
@@ -62,7 +64,7 @@ exports.postCart = (request, response) => {
   const productID = request.body.productID;
   Product.findById(productID)
     .then(product => {
-      return request.session.user.addToCart(product);
+      return request.user.addToCart(product);
     })
     .then(() => {
       response.redirect('/cart');
