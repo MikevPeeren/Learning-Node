@@ -8,8 +8,7 @@ exports.getIndex = (request, response) => {
         products,
         pageTitle: 'Shopaholic',
         path: '/',
-        hasProducts: products.length > 0,
-        isAuthenticated: request.session.isLoggedIn
+        hasProducts: products.length > 0
       });
     })
     .catch({});
@@ -22,8 +21,7 @@ exports.getProducts = (request, response) => {
         products,
         pageTitle: 'Shopaholic',
         path: '/products',
-        hasProducts: products.length > 0,
-        isAuthenticated: request.session.isLoggedIn
+        hasProducts: products.length > 0
       });
     })
     .catch({});
@@ -37,8 +35,7 @@ exports.getProduct = (request, response) => {
       response.render('shop/product-detail', {
         product,
         pageTitle: 'Shopaholic',
-        path: '/products',
-        isAuthenticated: request.session.isLoggedIn
+        path: '/products'
       });
     })
     .catch(error => console.log(error));
@@ -52,8 +49,7 @@ exports.getCart = (request, response) => {
       response.render('shop/cart', {
         path: '/cart',
         pageTitle: 'Your Cart',
-        products: user.cart.items,
-        isAuthenticated: request.session.isLoggedIn
+        products: user.cart.items
       });
     })
     .catch(() => {});
@@ -89,8 +85,7 @@ exports.getOrders = (request, response) => {
       response.render('shop/orders', {
         path: '/orders',
         pageTitle: 'Your Orders',
-        orders,
-        isAuthenticated: request.session.isLoggedIn
+        orders
       });
     })
     .catch(() => {});
@@ -107,7 +102,7 @@ exports.postOrder = (request, response) => {
       });
       const order = new Order({
         user: {
-          name: request.user.username,
+          email: request.user.email,
           userID: request.user
         },
         products
