@@ -9,5 +9,16 @@
   width: 20rem;
   max-width: 90%;
   margin: auto;
+  display: block; 
+}
+
+.reset-password-form {
+  width: 20rem;
+  max-width: 90%;
+  margin: auto;
   display: block;
+}
+
+.reset-password {
+  margin-top: 20px;
 }

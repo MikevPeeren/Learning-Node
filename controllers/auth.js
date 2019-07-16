@@ -1,3 +1,6 @@
+/* eslint-disable prefer-destructuring */
+const crypto = require('crypto');
+
 const bcrypt = require('bcryptjs');
 const nodeMailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
@@ -125,4 +128,103 @@ exports.postLogout = (request, response) => {
   request.session.destroy(() => {
     response.redirect('/');
   });
+};
+
+exports.getReset = (request, response) => {
+  let message = request.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+
+  response.render('auth/reset', {
+    path: '/reset',
+    pageTitle: 'Reset Password',
+    errorMessage: message
+  });
+};
+
+exports.postReset = (request, response, next) => {
+  crypto.randomBytes(32, (error, buffer) => {
+    if (error) {
+      return response.render('/reset');
+    }
+
+    const token = buffer.toString('hex');
+    User.findOne({ email: request.body.email })
+      .then(user => {
+        if (!user) {
+          request.flash('error', 'No account with that Email found.');
+          return response.render('/reset');
+        }
+        // eslint-disable-next-line no-param-reassign
+        user.resetToken = token;
+        // eslint-disable-next-line no-param-reassign
+        user.resetTokenExpiration = Date.now() + 3600000;
+        return user.save();
+      })
+      .then(() => {
+        response.redirect('/');
+        transporter.sendMail({
+          to: request.body.email,
+          from: 'NodeApp@hotmail.com',
+          subject: 'Password Reset',
+          html: `
+            <p>You requested a Password Reset.</p>
+            <p>Click this <a href="http://localhost:1337/reset/${token}"> URL </a> to set a new password.</p>
+          `
+        });
+      })
+      .catch(() => {});
+  });
+};
+
+exports.getNewPassword = (request, response) => {
+  const token = request.params.token;
+  User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } }).then(user => {
+    let message = request.flash('error');
+    if (message.length > 0) {
+      message = message[0];
+    } else {
+      message = null;
+    }
+
+    response.render('auth/new-password', {
+      // eslint-disable-next-line no-underscore-dangle
+      userID: user._id.toString(),
+      passwordToken: token,
+      path: '/new-password',
+      pageTitle: 'New Password',
+      errorMessage: message
+    });
+  });
+};
+
+exports.postNewPassword = (request, response) => {
+  const newPassword = request.body.password;
+  const userID = request.body.userID;
+  const passwordToken = request.body.passwordToken;
+
+  let resetUser;
+
+  User.findOne({
+    resetToken: passwordToken,
+    resetTokenExpiration: { $gt: Date.now() },
+    _id: userID
+  })
+    .then(user => {
+      resetUser = user;
+      return bcrypt.hash(newPassword, 12);
+    })
+    .then(hashedPassword => {
+      resetUser.password = hashedPassword;
+      resetUser.resetToken = null;
+      resetUser.resetTokenExpiration = undefined;
+
+      return resetUser.save();
+    })
+    .then(() => {
+      response.redirect('/login');
+    });
 };
