@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodeMailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
+const { validationResult } = require('express-validator');
 
 const User = require('../models/user');
 
@@ -25,7 +26,9 @@ exports.getLogin = (request, response) => {
   response.render('auth/login', {
     path: '/login',
     pageTitle: 'Login',
-    errorMessage: message
+    errorMessage: message,
+    oldInput: { email: '', password: '' },
+    validationErrors: []
   });
 };
 
@@ -39,17 +42,36 @@ exports.getSignup = (request, response) => {
   response.render('auth/signup', {
     path: '/signup',
     pageTitle: 'Signup',
-    errorMessage: message
+    errorMessage: message,
+    oldInput: { email: '', password: '' },
+    validationErrors: []
   });
 };
 
 exports.postLogin = (request, response) => {
   const { email, password } = request.body;
+  const errors = validationResult(request);
+
+  if (!errors.isEmpty()) {
+    response.status(422).render('auth/login', {
+      path: '/login',
+      pageTitle: 'Login',
+      errorMessage: errors.array()[0].msg,
+      oldInput: { email, password },
+      validationErrors: errors.array()
+    });
+  }
+
   User.findOne({ email })
     .then(user => {
       if (!user) {
-        request.flash('error', 'Invalid Email or Password');
-        response.redirect('/login');
+        response.status(422).render('auth/login', {
+          path: '/login',
+          pageTitle: 'Login',
+          errorMessage: 'Invalid Email or Password',
+          oldInput: { email, password },
+          validationErrors: []
+        });
       }
 
       bcrypt
@@ -58,16 +80,24 @@ exports.postLogin = (request, response) => {
           if (doMatch) {
             request.session.user = user;
             request.session.isLoggedIn = true;
-            return request.session.save(() => {
+            return request.session.save(error => {
+              console.log(error);
               response.redirect('/');
             });
           }
-          request.flash('error', 'Invalid Email or Password');
-          response.redirect('/login');
+          return response.status(422).render('auth/login', {
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: 'Invalid Email or Password',
+            oldInput: { email, password },
+            validationErrors: errors.array()
+          });
         })
-        .catch(() => {
+        .catch(error => {
+          console.log(error);
           response.redirect('/login');
         });
+
     })
     // eslint-disable-next-line no-console
     .catch(error => console.log(error));
@@ -81,6 +111,16 @@ exports.postLogout = (request, response) => {
 
 exports.postSignup = (request, response) => {
   const { username, email, password } = request.body;
+  const errors = validationResult(request);
+  if (!errors.isEmpty()) {
+    response.status(422).render('auth/signup', {
+      path: '/signup',
+      pageTitle: 'Signup',
+      errorMessage: errors.array()[0].msg,
+      oldInput: { email, password, confirmPassword: request.body.confirmPassword },
+      validationErrors: errors.array()
+    });
+  }
   User.findOne({ email })
     .then(userDoc => {
       if (userDoc) {
@@ -119,9 +159,7 @@ exports.postSignup = (request, response) => {
             .catch(() => {});
         });
     })
-    .catch(error => {
-      console.log(error);
-    });
+    .catch(() => {});
 };
 
 exports.postLogout = (request, response) => {
