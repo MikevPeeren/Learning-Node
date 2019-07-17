@@ -1,3 +1,2 @@
 # Learning-Node
-
-This is a repository that will display my learning curve in Node  :) 
+A Replication of a WebShop.
