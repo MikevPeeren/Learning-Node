@@ -53,20 +53,23 @@ exports.postEditProduct = (request, response) => {
   const requestBody = request.body;
   Product.findById(requestBody.productID)
     .then(product => {
+      // eslint-disable-next-line no-underscore-dangle
+      if (product.userID.toString() !== request.user._id.toString()) {
+        return response.redirect('/');
+      }
       product.title = requestBody.title;
       product.imageUrl = requestBody.imageUrl;
       product.price = requestBody.price;
       product.description = requestBody.description;
-      return product.save();
-    })
-    .then(() => {
-      response.redirect('/admin/products');
+      return product.save().then(() => {
+        response.redirect('/admin/products');
+      });
     })
     .catch(() => {});
 };
 
 exports.getProducts = (request, response) => {
-  Product.find()
+  Product.find({ userID: request.user._id })
     .then(products => {
       response.render('admin/products', {
         products,
@@ -79,7 +82,7 @@ exports.getProducts = (request, response) => {
 };
 
 exports.postDeleteProduct = (request, response) => {
-  Product.findByIdAndRemove(request.body.productID)
+  Product.deleteOne({ _id: request.body.productID, userID: request.user._id })
     .then(() => {
       response.redirect('/admin/products');
     })
