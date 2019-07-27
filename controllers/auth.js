@@ -53,7 +53,7 @@ exports.postLogin = (request, response) => {
   const errors = validationResult(request);
 
   if (!errors.isEmpty()) {
-    response.status(422).render('auth/login', {
+    return response.status(422).render('auth/login', {
       path: '/login',
       pageTitle: 'Login',
       errorMessage: errors.array()[0].msg,
@@ -65,7 +65,7 @@ exports.postLogin = (request, response) => {
   User.findOne({ email })
     .then(user => {
       if (!user) {
-        response.status(422).render('auth/login', {
+        response.render('auth/login', {
           path: '/login',
           pageTitle: 'Login',
           errorMessage: 'Invalid Email or Password',
@@ -80,12 +80,11 @@ exports.postLogin = (request, response) => {
           if (doMatch) {
             request.session.user = user;
             request.session.isLoggedIn = true;
-            return request.session.save(error => {
-              console.log(error);
+            return request.session.save(() => {
               response.redirect('/');
             });
           }
-          return response.status(422).render('auth/login', {
+          return response.render('auth/login', {
             path: '/login',
             pageTitle: 'Login',
             errorMessage: 'Invalid Email or Password',
@@ -93,11 +92,9 @@ exports.postLogin = (request, response) => {
             validationErrors: errors.array()
           });
         })
-        .catch(error => {
-          console.log(error);
+        .catch(() => {
           response.redirect('/login');
         });
-
     })
     // eslint-disable-next-line no-console
     .catch(error => console.log(error));
@@ -113,7 +110,7 @@ exports.postSignup = (request, response) => {
   const { username, email, password } = request.body;
   const errors = validationResult(request);
   if (!errors.isEmpty()) {
-    response.status(422).render('auth/signup', {
+    response.render('auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',
       errorMessage: errors.array()[0].msg,
@@ -183,7 +180,7 @@ exports.getReset = (request, response) => {
   });
 };
 
-exports.postReset = (request, response, next) => {
+exports.postReset = (request, response) => {
   crypto.randomBytes(32, (error, buffer) => {
     if (error) {
       return response.render('/reset');

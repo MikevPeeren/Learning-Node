@@ -1,16 +1,39 @@
 /* eslint-disable no-param-reassign */
+const { validationResult } = require('express-validator');
+
 const Product = require('../models/product');
 
 exports.getAddProduct = (request, response) => {
   response.render('admin/edit-product', {
     pageTitle: 'Add Product',
     path: '/admin/add-product',
-    editing: false
+    editing: false,
+    hasError: false,
+    errorMessage: null,
+    validationErrors: []
   });
 };
 
 exports.postAddProduct = (request, response) => {
   const { title, imageUrl, price, description } = request.body;
+  const errors = validationResult(request);
+
+  if (!errors.isEmpty()) {
+    return response.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: false,
+      hasError: true,
+      product: {
+        title,
+        imageUrl,
+        price,
+        description
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array()
+    });
+  }
   const product = new Product({
     title,
     imageUrl,
@@ -43,7 +66,10 @@ exports.getEditProduct = (request, response) => {
         pageTitle: 'Edit Product',
         path: '/admin/edit-product',
         editing: editMode,
-        product
+        product,
+        hasError: false,
+        errorMessage: null,
+        validationErrors: []
       });
     })
     .catch(() => {});
@@ -51,6 +77,24 @@ exports.getEditProduct = (request, response) => {
 
 exports.postEditProduct = (request, response) => {
   const requestBody = request.body;
+  const errors = validationResult(request);
+  if (!errors.isEmpty()) {
+    return response.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      path: '/admin/add-product',
+      editing: true,
+      hasError: true,
+      product: {
+        title: requestBody.title,
+        imageUrl: requestBody.imageUrl,
+        price: requestBody.price,
+        description: requestBody.description,
+        _id: requestBody.productID
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array()
+    });
+  }
   Product.findById(requestBody.productID)
     .then(product => {
       // eslint-disable-next-line no-underscore-dangle

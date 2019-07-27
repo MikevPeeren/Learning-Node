@@ -19,7 +19,7 @@ router.post(
       .withMessage('Please enter a valid Email.')
       .normalizeEmail(),
     body('password', 'Please enter a password that is atleast 5 characters')
-      .isLength({ min: 5 })
+      .isLength({ min: 4 })
       .trim()
   ],
   authController.postLogin
@@ -31,16 +31,16 @@ router.post(
     check('email')
       .isEmail()
       .withMessage('Please enter a valid Email.')
-      .custom((value, { request }) => {
-        return User.findOne({ email: value }).then(userDoc => {
-          if (userDoc) {
-            // eslint-disable-next-line prefer-promise-reject-errors
-            return Promise.reject('This email address exists already.');
-          }
-        });
-      }),
+      .custom(async value => {
+        const userDoc = await User.findOne({ email: value });
+        if (userDoc) {
+          // eslint-disable-next-line prefer-promise-reject-errors
+          return Promise.reject('This email address exists already.');
+        }
+      })
+      .normalizeEmail(),
     body('password', 'Please enter a password that is atleast 5 characters')
-      .isLength({ min: 5 })
+      .isLength({ min: 4 })
       .trim(),
     body('confirmPassword')
       .trim()
