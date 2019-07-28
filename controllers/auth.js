@@ -48,7 +48,7 @@ exports.getSignup = (request, response) => {
   });
 };
 
-exports.postLogin = (request, response) => {
+exports.postLogin = (request, response, next) => {
   const { email, password } = request.body;
   const errors = validationResult(request);
 
@@ -65,7 +65,7 @@ exports.postLogin = (request, response) => {
   User.findOne({ email })
     .then(user => {
       if (!user) {
-        response.render('auth/login', {
+        return response.status(422).render('auth/login', {
           path: '/login',
           pageTitle: 'Login',
           errorMessage: 'Invalid Email or Password',
@@ -96,8 +96,11 @@ exports.postLogin = (request, response) => {
           response.redirect('/login');
         });
     })
-    // eslint-disable-next-line no-console
-    .catch(error => console.log(error));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postLogout = (request, response) => {
@@ -106,7 +109,7 @@ exports.postLogout = (request, response) => {
   });
 };
 
-exports.postSignup = (request, response) => {
+exports.postSignup = (request, response, next) => {
   const { username, email, password } = request.body;
   const errors = validationResult(request);
   if (!errors.isEmpty()) {
@@ -153,10 +156,18 @@ exports.postSignup = (request, response) => {
                 html: email
               })
             )
-            .catch(() => {});
+            .catch(err => {
+              const error = new Error(err);
+              error.httpStatusCode = 500;
+              return next(error);
+            });
         });
     })
-    .catch(() => {});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postLogout = (request, response) => {

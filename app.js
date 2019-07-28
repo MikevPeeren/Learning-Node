@@ -50,29 +50,45 @@ app.use(csrfProtection);
 app.use(flash());
 
 app.use((request, response, next) => {
+  response.locals.isAuthenticated = request.session.isLoggedIn;
+  response.locals.csrfToken = request.csrfToken();
+  next();
+});
+
+app.use((request, response, next) => {
   if (!request.session.user) {
     return next();
   }
   // eslint-disable-next-line no-underscore-dangle
   User.findById(request.session.user._id)
     .then(user => {
+      if (!user) {
+        return next();
+      }
       request.user = user;
-      next();
+      return next();
     })
-    .catch(() => {});
-});
-
-app.use((request, response, next) => {
-  response.locals.isAuthenticated = request.session.isLoggedIn;
-  response.locals.csrfToken = request.csrfToken();
-  next();
+    .catch(() => {
+      return next(new Error('User could not be Found.'));
+    });
 });
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
 
+app.get('/500', errorController.get500);
+
 app.use(errorController.get404);
+
+app.use((error, request, response, next) => {
+  response.status(500).render('500', {
+    pageTitle: 'Error!',
+    path: '/500',
+    isAuthenticated: request.session.isLoggedIn
+  });
+  response.redirect('/500');
+});
 
 mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true })

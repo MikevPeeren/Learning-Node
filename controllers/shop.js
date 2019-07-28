@@ -1,7 +1,7 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
 
-exports.getIndex = (request, response) => {
+exports.getIndex = (request, response, next) => {
   Product.find()
     .then(products => {
       response.render('shop/index', {
@@ -11,10 +11,14 @@ exports.getIndex = (request, response) => {
         hasProducts: products.length > 0
       });
     })
-    .catch({});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.getProducts = (request, response) => {
+exports.getProducts = (request, response, next) => {
   Product.find()
     .then(products => {
       response.render('shop/product-list', {
@@ -24,10 +28,14 @@ exports.getProducts = (request, response) => {
         hasProducts: products.length > 0
       });
     })
-    .catch({});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.getProduct = (request, response) => {
+exports.getProduct = (request, response, next) => {
   // eslint-disable-next-line prefer-destructuring
   const productID = request.params.productID;
   Product.findById(productID)
@@ -38,10 +46,14 @@ exports.getProduct = (request, response) => {
         path: '/products'
       });
     })
-    .catch(error => console.log(error));
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.getCart = (request, response) => {
+exports.getCart = (request, response, next) => {
   request.user
     .populate('cart.items.productID')
     .execPopulate()
@@ -52,7 +64,11 @@ exports.getCart = (request, response) => {
         products: user.cart.items
       });
     })
-    .catch(() => {});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postCart = (request, response) => {
@@ -67,7 +83,7 @@ exports.postCart = (request, response) => {
     });
 };
 
-exports.postDeleteCartItem = (request, response) => {
+exports.postDeleteCartItem = (request, response, next) => {
   // eslint-disable-next-line prefer-destructuring
   const productID = request.body.productID;
   request.user
@@ -75,10 +91,14 @@ exports.postDeleteCartItem = (request, response) => {
     .then(() => {
       response.redirect('/cart');
     })
-    .catch(() => {});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.getOrders = (request, response) => {
+exports.getOrders = (request, response, next) => {
   // eslint-disable-next-line no-underscore-dangle
   Order.find({ 'user.userID': request.user._id })
     .then(orders => {
@@ -88,10 +108,14 @@ exports.getOrders = (request, response) => {
         orders
       });
     })
-    .catch(() => {});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.postOrder = (request, response) => {
+exports.postOrder = (request, response, next) => {
   request.user
     .populate('cart.items.productID')
     .execPopulate()
@@ -115,5 +139,9 @@ exports.postOrder = (request, response) => {
     .then(() => {
       response.redirect('/orders');
     })
-    .catch(() => {});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };

@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 const { validationResult } = require('express-validator');
 
@@ -14,7 +15,7 @@ exports.getAddProduct = (request, response) => {
   });
 };
 
-exports.postAddProduct = (request, response) => {
+exports.postAddProduct = (request, response, next) => {
   const { title, imageUrl, price, description } = request.body;
   const errors = validationResult(request);
 
@@ -46,11 +47,15 @@ exports.postAddProduct = (request, response) => {
     .then(() => {
       response.redirect('/admin/products');
     })
-    .catch({});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 // eslint-disable-next-line consistent-return
-exports.getEditProduct = (request, response) => {
+exports.getEditProduct = (request, response, next) => {
   const editMode = request.query.edit;
   if (!editMode) {
     return response.redirect('/');
@@ -72,10 +77,14 @@ exports.getEditProduct = (request, response) => {
         validationErrors: []
       });
     })
-    .catch(() => {});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.postEditProduct = (request, response) => {
+exports.postEditProduct = (request, response, next) => {
   const requestBody = request.body;
   const errors = validationResult(request);
   if (!errors.isEmpty()) {
@@ -109,10 +118,14 @@ exports.postEditProduct = (request, response) => {
         response.redirect('/admin/products');
       });
     })
-    .catch(() => {});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.getProducts = (request, response) => {
+exports.getProducts = (request, response, next) => {
   Product.find({ userID: request.user._id })
     .then(products => {
       response.render('admin/products', {
@@ -122,13 +135,21 @@ exports.getProducts = (request, response) => {
         hasProducts: products.length > 0
       });
     })
-    .catch({});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
-exports.postDeleteProduct = (request, response) => {
+exports.postDeleteProduct = (request, response, next) => {
   Product.deleteOne({ _id: request.body.productID, userID: request.user._id })
     .then(() => {
       response.redirect('/admin/products');
     })
-    .catch({});
+    .catch(err => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
