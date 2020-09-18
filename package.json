@@ -42,7 +42,7 @@
     "lodash": "^4.17.20",
     "mongodb": "^3.6.2",
     "mongoose": "^5.10.5",
-    "mysql2": "^2.1.0",
+    "mysql2": "^2.2.1",
     "nodemailer": "^6.4.11",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "npm-check-updates": "^9.0.1",
