@@ -43,7 +43,7 @@
     "mongodb": "^3.6.3",
     "mongoose": "^5.10.13",
     "mysql2": "^2.2.5",
-    "nodemailer": "^6.4.15",
+    "nodemailer": "^6.4.16",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "npm-check-updates": "^10.0.0",
     "prettier": "^2.1.2",
