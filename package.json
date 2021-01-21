@@ -41,7 +41,7 @@
     "express-validator": "^6.9.2",
     "lodash": "^4.17.20",
     "mongodb": "^3.6.3",
-    "mongoose": "^5.11.12",
+    "mongoose": "^5.11.13",
     "mysql2": "^2.2.5",
     "nodemailer": "^6.4.17",
     "nodemailer-sendgrid-transport": "^0.2.0",
